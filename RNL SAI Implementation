@@ -1,0 +1,322 @@
+SELECT s1.spriden_id
+           AS "Student ID",
+       
+       (CASE
+            WHEN r1.rcrapp1_par_mrtl_status = '1' THEN 'married/remarried'
+            WHEN r1.rcrapp1_par_mrtl_status = '2' THEN 'never married'
+            WHEN r1.rcrapp1_par_mrtl_status = '3' THEN 'divorced/separated'
+            WHEN r1.rcrapp1_par_mrtl_status = '4' THEN 'widowed'
+            WHEN r1.rcrapp1_par_mrtl_status = '5' THEN 'unmarried and both parents living together'
+            ELSE NULL
+        END)
+           AS "Marital status (parent)",
+       
+       r1.rcrapp1_par_fam_memb AS "# in family/houshold (parents/dependents)",
+       
+       (CASE
+            WHEN r4.rcrapp4_par_tx_ret_filed_ind = '1' THEN 'already completed'
+            WHEN r4.rcrapp4_par_tx_ret_filed_ind = '2' THEN 'will file'
+            WHEN r4.rcrapp4_par_tx_ret_filed_ind = '3' THEN 'will not file'
+            ELSE NULL
+        END)
+           AS "Tax return completion status (parent)",
+           
+       (CASE
+            WHEN r1.rcrapp1_par_tax_filing_status = '1' THEN 'single'
+            WHEN r1.rcrapp1_par_tax_filing_status = '2' THEN 'married - filed joint return'
+            WHEN r1.rcrapp1_par_tax_filing_status = '3' THEN 'married - filed separate return'
+            WHEN r1.rcrapp1_par_tax_filing_status = '4' THEN 'head of household'
+            WHEN r1.rcrapp1_par_tax_filing_status = '5' THEN 'qualifying widow(er)'
+            WHEN r1.rcrapp1_par_tax_filing_status = '6' THEN 'dont know'
+            ELSE NULL
+        END)
+           AS "Tax filing status (parent)",
+           
+       (CASE
+            WHEN r1.rcrapp1_mrtl_status = '1' THEN 'Single'
+            WHEN r1.rcrapp1_mrtl_status = '2' THEN 'Married/remarried'
+            WHEN r1.rcrapp1_mrtl_status = '3' THEN 'Separated'
+            WHEN r1.rcrapp1_mrtl_status = '4' THEN 'Divorced/widowed'
+            ELSE NULL
+        END)
+           AS "Marital status (student)",
+           
+         (CASE
+            WHEN r4.rcrapp4_tx_ret_filed_ind = '1' THEN 'Already Complete'
+            WHEN r4.rcrapp4_tx_ret_filed_ind = '2' THEN 'Will File'
+            WHEN r4.rcrapp4_tx_ret_filed_ind = '3' THEN 'Will Not File'
+            ELSE NULL
+        END)
+           AS "Tax return completion status (student)",
+           
+        (CASE
+            WHEN r1.rcrapp1_tax_filing_status = '1' THEN 'Single'
+            WHEN r1.rcrapp1_tax_filing_status = '2' THEN 'Married–filed joint return'
+            WHEN r1.rcrapp1_tax_filing_status = '3' THEN 'Married–filed separate return'
+			WHEN r1.rcrapp1_tax_filing_status = '4' THEN 'Head of household'
+			WHEN r1.rcrapp1_tax_filing_status = '5' THEN 'Qualifying widow(er)'
+			WHEN r1.rcrapp1_tax_filing_status = '6' THEN 'Dont Know'
+            ELSE NULL
+        END)
+           AS "Tax filing status (student)",
+           
+        R1.rcrapp1_fam_memb AS "Number in family/household",
+        
+        to_char(R4.rcrapp4_fath_birth_date,'DD/MM/YYYY') AS "Parent 1 date of birth",
+        
+        to_char(R4.rcrapp4_moth_birth_date,'DD/MM/YYYY') AS "Parent 2 date of birth",
+           
+        decode(R2.rcrapp2_model_cde,'I','2','D','1',null) AS "Dependency status",
+        
+        r4.rcrapp4_have_children AS "Student has dependents - child", 
+        
+        r1.rcrapp1_has_legal_depend AS "Student has dependents - other", 
+
+        to_char(R1.rcrapp1_birth_date,'DD/MM/YYYY') AS "Student date of birth (independent)",
+        
+        (CASE
+            WHEN r1.rcrapp1_par_recd_ssi = '1' THEN 'yes'
+            WHEN r1.rcrapp1_par_recd_ssi = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Parent: Medicaid/SSI",
+           
+        (CASE
+            WHEN r1.rcrapp1_par_food_stamps = '1' THEN 'yes'
+            WHEN r1.rcrapp1_par_food_stamps = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Parent: SNAP",
+           
+        (CASE
+            WHEN r1.rcrapp1_par_school_lunch = '1' THEN 'yes'
+            WHEN r1.rcrapp1_par_school_lunch = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Parent: FRPL", 
+           
+        (CASE
+            WHEN r1.rcrapp1_par_recd_tanf = '1' THEN 'yes'
+            WHEN r1.rcrapp1_par_recd_tanf = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Parent: TANF",
+           
+        (CASE
+            WHEN r1.rcrapp1_par_recd_wic = '1' THEN 'yes'
+            WHEN r1.rcrapp1_par_recd_wic = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Parent: WIC",
+           
+        (CASE
+            WHEN r1.rcrapp1_recd_ssi = '1' THEN 'yes'
+            WHEN r1.rcrapp1_recd_ssi = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Student: Medicaid/SSI",
+           
+        (CASE
+            WHEN r1.rcrapp1_food_stamps = '1' THEN 'yes'
+            WHEN r1.rcrapp1_food_stamps = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Student: SNAP",
+           
+        (CASE
+            WHEN r1.rcrapp1_school_lunch = '1' THEN 'yes'
+            WHEN r1.rcrapp1_school_lunch = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Student: FRLP",
+           
+        (CASE
+            WHEN r1.rcrapp1_recd_tanf = '1' THEN 'yes'
+            WHEN r1.rcrapp1_recd_tanf = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Student: TANF",
+           
+        (CASE
+            WHEN r1.rcrapp1_recd_wic = '1' THEN 'yes'
+            WHEN r1.rcrapp1_recd_wic = '0' THEN 'no'
+            ELSE NULL
+        END)
+           AS "Student: WIC",
+           
+        R1.rcrapp1_par_us_inc AS "AGI (parent)",
+        R1.rcrapp1_fath_inc_fr_wrk AS "Parent 1 earnings",
+		R1.rcrapp1_moth_inc_fr_wrk AS "Parent 2 earnings",
+		R3.rcrapp3_par_educ_credits AS "Education credits (dependent parent)",
+		R3.rcrapp3_par_need_based_employ AS "Need-based employment (dependent parent)",
+		R3.rcrapp3_par_grant_scholar_aid AS "Taxable grant/scholarship aid (dependent parent)",
+		R3.rcrapp3_par_ira_keough AS "IRA deductions (dependent parent)",
+		R3.rcrapp3_par_te_int_inc AS "Tax exempt interest income (dependent parent)",
+		R1.rcrapp1_par_untax_ira_pns_dist AS "Untaxed IRA distribution (dependent parent)",
+		R1.rcrapp1_par_child_supp AS "Child support received (dependent parent)",
+		R1.rcrapp1_par_us_inc_tax_pd AS "Federal income tax paid (dependent parent)",
+		R1.rcrapp1_par_cash_amt AS "Cash/savings/checking (dependent parent)",
+		R4.rcrapp4_par_inv_net_worth AS "Net worth investments (dependent parent)",
+		R4.rcrapp4_par_bus_net_worth AS "Net worth business/farm (dependent parent)",
+		R1.rcrapp1_us_inc AS "AGI (student/spouse if independent)",
+		R1.rcrapp1_inc_fr_wrk AS "Student earnings",
+		R1.rcrapp1_sps_inc_fr_wrk AS "Spouse earnings (if independent)",
+		R3.rcrapp3_educ_credits AS "Education credits (student)",
+		R3.rcrapp3_need_based_employ AS "Need-based employment (student)",
+		R3.rcrapp3_grant_scholar_aid AS "Taxable grant/scholarship aid (student)",
+		R4.rcrapp4_ira_keogh_amt AS "IRA deductions (student)",
+		R3.rcrapp3_te_int_inc AS "Tax exempt interest Income (student)",
+		R1.rcrapp1_untax_ira_pns_dist AS "Untaxed IRA distribution (student)",
+		R1.rcrapp1_child_supp AS "Child support received (student)",
+		R1.rcrapp1_us_inc_tax_pd AS "Student federal income tax paid (student)",
+		R1.rcrapp1_cash_amt AS "Cash/savings/checking (student)",
+		R4.rcrapp4_inv_net_worth AS "Net worth investments (student)",
+		R4.rcrapp4_bus_net_worth AS "Net worth business/farm (student)",
+    
+      (CASE
+            WHEN r1.rcrapp1_title = '1' THEN 'Male'
+            ELSE NULL
+        END)
+           AS "Student: gender", 
+           
+        R1.rcrapp1_stat_code_res AS "Student: state",
+        
+        (CASE
+            WHEN r3.rcrapp3_father_hi_grade = '1' THEN 'Middle School/Jr. High'
+            WHEN r3.rcrapp3_father_hi_grade = '2' THEN 'High School'
+			WHEN r3.rcrapp3_father_hi_grade = '3' THEN 'College or beyond'
+			WHEN r3.rcrapp3_father_hi_grade = '4' THEN 'Other/unknown'
+            ELSE NULL
+        END)
+           AS "Student: parent 1 educational level", 
+        
+        (CASE
+            WHEN r3.rcrapp3_mother_hi_grade = '1' THEN 'Middle School/Jr. High'
+            WHEN r3.rcrapp3_mother_hi_grade = '2' THEN 'High School'
+			WHEN r3.rcrapp3_mother_hi_grade = '3' THEN 'College or beyond'
+			WHEN r3.rcrapp3_mother_hi_grade = '4' THEN 'Other/unknown'
+            ELSE NULL
+        END)
+           AS "Student: parent 2 educational level",
+           
+        (CASE
+            WHEN r3.rcrapp3_yr_in_coll_2 = '0' THEN '1st year, never attended college'
+            WHEN r3.rcrapp3_yr_in_coll_2 = '1' THEN '1st year, attended college before'
+			WHEN r3.rcrapp3_yr_in_coll_2 = '2' THEN '2nd year/sophomore'
+			WHEN r3.rcrapp3_yr_in_coll_2 = '3' THEN ' 3rd year/junior'
+			WHEN r3.rcrapp3_yr_in_coll_2 = '4' THEN '4th year/senior'
+			WHEN r3.rcrapp3_yr_in_coll_2 = '5' THEN '5th year/other undergrad'
+            ELSE NULL
+        END)
+           AS "Student: grade level in college", 
+           
+           R1.rcrapp1_no_in_coll AS "Student: Number in college",
+           
+           rcrapp1_disl_wrk AS "Student: dislocated worker",
+           
+        (CASE
+            WHEN r1.rcrapp1_tax_form_ind = '1' THEN 'IRS 1040'
+            WHEN r1.rcrapp1_tax_form_ind = '3' THEN 'Foreign tax return'
+			WHEN r1.rcrapp1_tax_form_ind = '4' THEN 'A tax return from Puerto Rico or U.S. territory'
+            ELSE NULL
+        END)
+           AS "Student: type of tax return",
+           
+           rcrapp1_par_stat_code_res AS "Parent: state",
+           rcrapp1_par_no_in_coll AS "Parent: number in college",
+           rcrapp1_par_disl_wrk AS "Parent: dislocated worker",
+           
+        (CASE
+            WHEN r1.rcrapp1_par_tax_form_ind = '1' THEN 'IRS 1040'
+            WHEN r1.rcrapp1_par_tax_form_ind = '3' THEN 'Foreign tax return'
+			WHEN r1.rcrapp1_par_tax_form_ind = '4' THEN 'A tax return from Puerto Rico or U.S. territory'
+            ELSE NULL
+        END)
+           AS "Parent: type of tax return",
+           
+        null AS "Parent: total income",
+		R3.rcrapp3_par_child_supp_paid AS "Parent: child support paid",
+		R4.rcrapp4_par_combat_pay AS "Parent: combat pay",
+		R3.rcrapp3_par_co_op_earnings AS "Parent: cooperative education earnings",
+		R3.rcrapp3_par_tax_def_pension AS "Parent: tax-deferred pensions and savings",
+		R3.rcrapp3_par_house_food_oth AS "Parent: military or clergy allowance",
+		rcrapp1_par_vets_non_ed_ben AS "Parent: veterans non-education benefits",
+		rcrapp1_par_oth_untax_inc AS "Parent: other untaxed income",
+		null AS "Parent: total allowances",
+		null AS "Parent: state allowance",
+		null AS "Parent: IPA",
+		null AS "Parent: EA",
+		null AS "Parent: contribution from assets",
+		null AS "Parent: contribution from available income",
+		null AS "Student: student total income",
+		R3.rcrapp3_child_supp_paid AS "Student: child support paid",
+		R4.rcrapp4_combat_pay AS "Student: combat pay",
+		R3.rcrapp3_co_op_earnings AS "Student: coop",
+		R3.rcrapp3_tax_def_pension AS "Student: tax-deferred pensions and savings",
+		R3.rcrapp3_house_food_oth AS "Student: military or clergy allowance",
+		rcrapp1_vets_non_ed_ben AS "Student: Veterans non-education benefits",
+		rcrapp1_oth_untax_inc AS "Student: other untaxed income",
+		rcrapp1_oth_non_report_money AS "Student: money received or paid on your behalf",
+		null AS "Student: total allowances",
+		null AS "Student: state allowances",
+		null AS "Student: IPA",
+		null AS "Student: EA",
+		null AS "Student: contribution from available income",
+		null AS "Student: contribution from assets",
+		rorstat_pri_sar_pgi AS "EFC",
+        
+        null AS "Auto Zero flag",
+		null AS "Simplified Needs Test flag",
+		null AS "Pell eligible flag",
+		null AS "Child of Fallen Hero indicator",
+		nvl(awd.Rprawrd_Paid_Amt,0) AS "Pell award (full-time)",
+		null as "# of months of enrollment for prorated EFC other than 9 months-optional",
+		null as "Prior BA",
+		null as "Graduate Student",
+		'001378' as "Institution",
+		rcrapp1_aidy_code as "Aid year"
+           
+
+
+ FROM RCRAPP1  R1
+       INNER JOIN RCRAPP2 R2
+           ON (    R2.RCRAPP2_PIDM = R1.RCRAPP1_PIDM
+               AND R2.RCRAPP2_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
+               AND R2.RCRAPP2_INFC_CODE = R1.RCRAPP1_INFC_CODE
+               AND R2.RCRAPP2_SEQ_NO = R1.RCRAPP1_SEQ_NO)
+       INNER JOIN RCRAPP3 R3
+           ON (    R3.RCRAPP3_PIDM = R1.RCRAPP1_PIDM
+               AND R3.RCRAPP3_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
+               AND R3.RCRAPP3_INFC_CODE = R1.RCRAPP1_INFC_CODE
+               AND R3.RCRAPP3_SEQ_NO = R1.RCRAPP1_SEQ_NO)
+       INNER JOIN RCRAPP4 R4
+           ON (    R4.RCRAPP4_PIDM = R1.RCRAPP1_PIDM
+               AND R4.RCRAPP4_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
+               AND R4.RCRAPP4_INFC_CODE = R1.RCRAPP1_INFC_CODE
+               AND R4.RCRAPP4_SEQ_NO = R1.RCRAPP1_SEQ_NO)
+       INNER JOIN RCRESAR SAR
+           ON (    SAR.RCRESAR_PIDM = R1.RCRAPP1_PIDM
+               AND SAR.RCRESAR_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
+               AND SAR.RCRESAR_INFC_CODE = R1.RCRAPP1_INFC_CODE
+               AND SAR.RCRESAR_SEQ_NO = R1.RCRAPP1_SEQ_NO)
+       INNER JOIN SPRIDEN S1
+           ON (    S1.SPRIDEN_PIDM = R1.RCRAPP1_PIDM
+               AND S1.SPRIDEN_CHANGE_IND IS NULL)
+       LEFT OUTER JOIN RRRAREQ REQ
+           ON (    REQ.RRRAREQ_PIDM = R1.RCRAPP1_PIDM
+               AND REQ.RRRAREQ_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
+               AND REQ.RRRAREQ_TREQ_CODE = 'FAFSA'
+               AND REQ.RRRAREQ_TRST_CODE = 'S')
+       LEFT OUTER JOIN RORSTAT ROR
+           ON (    ROR.RORSTAT_PIDM = R1.RCRAPP1_PIDM
+               AND ROR.RORSTAT_AIDY_CODE = R1.RCRAPP1_AIDY_CODE)
+       LEFT OUTER JOIN RPRAWRD AWD
+         ON (      RPRAWRD_PIDM = R1.RCRAPP1_PIDM 
+                AND RPRAWRD_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
+                AND  RPRAWRD_FUND_CODE = 'PELL')
+        -- AND RPRAWRD_AWST_CODE = 'X') XPLUS
+        --  ON (    XPLUS.RPRAWRD_PIDM = R1.RCRAPP1_PIDM
+        --   AND XPLUS.RPRAWRD_AIDY_CODE = R1.RCRAPP1_AIDY_CODE)
+ WHERE     R1.RCRAPP1_AIDY_CODE = :AIDY_CODE
+       AND R1.RCRAPP1_CURR_REC_IND = 'Y'
+       AND R1.RCRAPP1_INFC_CODE = 'EDE';
