@@ -1,3 +1,5 @@
+-- '2223' as input value to test 
+
 SELECT s1.spriden_id
            AS "Student ID",
        
@@ -51,8 +53,8 @@ SELECT s1.spriden_id
            
         (CASE
             WHEN r1.rcrapp1_tax_filing_status = '1' THEN 'Single'
-            WHEN r1.rcrapp1_tax_filing_status = '2' THEN 'Married–filed joint return'
-            WHEN r1.rcrapp1_tax_filing_status = '3' THEN 'Married–filed separate return'
+            WHEN r1.rcrapp1_tax_filing_status = '2' THEN 'Marriedâ€“filed joint return'
+            WHEN r1.rcrapp1_tax_filing_status = '3' THEN 'Marriedâ€“filed separate return'
 			WHEN r1.rcrapp1_tax_filing_status = '4' THEN 'Head of household'
 			WHEN r1.rcrapp1_tax_filing_status = '5' THEN 'Qualifying widow(er)'
 			WHEN r1.rcrapp1_tax_filing_status = '6' THEN 'Dont Know'
@@ -265,7 +267,13 @@ SELECT s1.spriden_id
 		null AS "Student: contribution from assets",
 		rorstat_pri_sar_pgi AS "EFC",
         
-        null AS "Auto Zero flag",
+       (CASE
+            WHEN SAR.RCRESAR_AUTO_ZERO_EFC_FLAG = 'Y' THEN '1'
+            WHEN SAR.RCRESAR_AUTO_ZERO_EFC_FLAG = 'N' THEN '2'
+            ELSE NULL
+        END)
+           AS "Auto Zero flag",
+           
 		null AS "Simplified Needs Test flag",
 		null AS "Pell eligible flag",
 		null AS "Child of Fallen Hero indicator",
