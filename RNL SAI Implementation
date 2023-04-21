@@ -53,8 +53,8 @@ SELECT s1.spriden_id
            
         (CASE
             WHEN r1.rcrapp1_tax_filing_status = '1' THEN 'Single'
-            WHEN r1.rcrapp1_tax_filing_status = '2' THEN 'Marriedâ€“filed joint return'
-            WHEN r1.rcrapp1_tax_filing_status = '3' THEN 'Marriedâ€“filed separate return'
+            WHEN r1.rcrapp1_tax_filing_status = '2' THEN 'Married–filed joint return'
+            WHEN r1.rcrapp1_tax_filing_status = '3' THEN 'Married–filed separate return'
 			WHEN r1.rcrapp1_tax_filing_status = '4' THEN 'Head of household'
 			WHEN r1.rcrapp1_tax_filing_status = '5' THEN 'Qualifying widow(er)'
 			WHEN r1.rcrapp1_tax_filing_status = '6' THEN 'Dont Know'
@@ -274,14 +274,28 @@ SELECT s1.spriden_id
         END)
            AS "Auto Zero flag",
            
-		null AS "Simplified Needs Test flag",
-		null AS "Pell eligible flag",
+		(CASE
+            WHEN R2.RCRAPP2_PELL_ANLY_TYPE = 'Y' THEN '1'
+            WHEN R2.RCRAPP2_PELL_ANLY_TYPE = 'N' THEN '2'
+            ELSE NULL
+        END)
+            AS "Simplified Needs Test flag",
+            
+		(CASE
+            WHEN SAR.RCRESAR_PELL_ELGBL = 'Y' THEN '1'
+            WHEN SAR.RCRESAR_PELL_ELGBL = 'N' THEN '2'
+            ELSE NULL
+        END)
+            AS "Pell eligible flag",
+            
 		null AS "Child of Fallen Hero indicator",
 		nvl(awd.Rprawrd_Paid_Amt,0) AS "Pell award (full-time)",
-		null as "# of months of enrollment for prorated EFC other than 9 months-optional",
+        
+		RCVAPPL_TFC as "# of months of enrollment for prorated EFC other than 9 months-optional",
+        
 		null as "Prior BA",
 		null as "Graduate Student",
-		'001378' as "Institution",
+		'008278' as "Institution",
 		rcrapp1_aidy_code as "Aid year"
            
 
@@ -322,6 +336,11 @@ SELECT s1.spriden_id
          ON (      RPRAWRD_PIDM = R1.RCRAPP1_PIDM 
                 AND RPRAWRD_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
                 AND  RPRAWRD_FUND_CODE = 'PELL')
+         INNER JOIN RCVAPPL RC
+           ON (    RC.RCVAPPL_PIDM = R1.RCRAPP1_PIDM
+               AND RC.RCVAPPL_AIDY_CODE = R1.RCRAPP1_AIDY_CODE
+               AND RC.RCVAPPL_INFC_CODE = R1.RCRAPP1_INFC_CODE
+               AND RC.RCVAPPL_SEQ_NO = R1.RCRAPP1_SEQ_NO)        
         -- AND RPRAWRD_AWST_CODE = 'X') XPLUS
         --  ON (    XPLUS.RPRAWRD_PIDM = R1.RCRAPP1_PIDM
         --   AND XPLUS.RPRAWRD_AIDY_CODE = R1.RCRAPP1_AIDY_CODE)
