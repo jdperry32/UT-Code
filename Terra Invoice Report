@@ -12,7 +12,7 @@ SELECT DISTINCT
    
     b.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount                         
                                      AS "Total",
-    sub.ssbsect_subj_code     AS "Course 1",
+    sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' ||  SCBCRSE_TITLE  AS "Course 1",
     Null                        AS "Course 2",
     Null                        AS "Course 3",
     Null                        AS "Course 4",
@@ -102,6 +102,10 @@ FROM
          INNER JOIN ssbsect sub
              ON     ssbsect_crn = sf.sfrstca_crn
                 AND ssbsect_term_code = z.tbvconr_term_code
+                
+    INNER JOIN scbcrse sc1
+           ON     sc1.scbcrse_subj_code = sub.SSBSECT_SUBJ_CODE
+                AND sc1.scbcrse_crse_numb = sub.SSBSECT_CRSE_NUMB
 
  -- ******************* VENDOR EMAIL ***************************************          
     LEFT JOIN goremal gor ON (gor.goremal_pidm = a.spriden_pidm
