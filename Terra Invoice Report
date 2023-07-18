@@ -9,7 +9,9 @@ SELECT DISTINCT
     f.tbraccd_amount       AS "RegFee",
     i.tbraccd_amount       AS "ActFee",
     k.tbraccd_amount       AS "Digital Mtls/Books",
-    Null                        AS "Total",
+   
+    b.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount                         
+                                     AS "Total",
     sub.ssbsect_subj_code     AS "Course 1",
     Null                        AS "Course 2",
     Null                        AS "Course 3",
