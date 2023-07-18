@@ -3,14 +3,14 @@ SELECT DISTINCT
     a.spriden_last_name         AS "Last Name",
     a.spriden_first_name        AS "First Name",
     z.tbvconr_term_code         AS "Term",
-    b.tbraccd_detail_code       AS "Tuiton",
-    c.tbraccd_detail_code       AS "Lab",
-    d.tbraccd_detail_code       AS "Tech Fee",
-    f.tbraccd_detail_code       AS "RegFee",
-    i.tbraccd_detail_code       AS "ActFee",
-    k.tbraccd_detail_code       AS "Digital Mtls/Books",
+    b.tbraccd_amount       AS "Tuiton",
+    c.tbraccd_amount       AS "Lab",
+    d.tbraccd_amount       AS "Tech Fee",
+    f.tbraccd_amount       AS "RegFee",
+    i.tbraccd_amount       AS "ActFee",
+    k.tbraccd_amount       AS "Digital Mtls/Books",
     Null                        AS "Total",
-    sub.ssbsect_subj_code       AS "Course 1",
+    sub.ssbsect_subj_code     AS "Course 1",
     Null                        AS "Course 2",
     Null                        AS "Course 3",
     Null                        AS "Course 4",
@@ -43,7 +43,7 @@ FROM
 
 -- ******************* LAB DETAIL CODE ***************************************
 
-    LEFT JOIN tbvconr t ON ( t.tbvconr_stu_pidm = a.spriden_pidm
+   LEFT JOIN tbvconr t ON ( t.tbvconr_stu_pidm = a.spriden_pidm
                               AND t.tbvconr_term_code = z.tbvconr_term_code )
     INNER JOIN tbraccd c ON ( t.tbvconr_stu_pidm = c.tbraccd_pidm
                              AND t.tbvconr_crossref_detail_code = c.tbraccd_detail_code
@@ -95,10 +95,8 @@ FROM
     INNER JOIN sfrstca sf
              ON     a.spriden_pidm = sf.sfrstca_pidm
                 AND sf.sfrstca_term_code = z.tbvconr_term_code
-                AND (   sf.sfrstca_RSTS_CODE LIKE 'R%'
-                     OR sf.sfrstca_RSTS_CODE LIKE 'W%')
-                AND (   sf.sfrstca_message LIKE 'Midterm grade updated to NO%'
-                     OR sf.sfrstca_message LIKE 'Midterm grade updated to YS%')
+                AND sf.sfrstca_RSTS_CODE LIKE 'R%'
+                     
          INNER JOIN ssbsect sub
              ON     ssbsect_crn = sf.sfrstca_crn
                 AND ssbsect_term_code = z.tbvconr_term_code
