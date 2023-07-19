@@ -139,3 +139,5 @@ FROM
                                  WHERE s.spraddr_pidm = y.spraddr_pidm
                                     AND  s.spraddr_seqno = y.spraddr_seqno
 )
+
+Order By a.spriden_last_name
