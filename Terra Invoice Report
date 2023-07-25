@@ -4,22 +4,17 @@ SELECT DISTINCT
     a.spriden_first_name        AS "First Name",
 
     z.tbvconr_term_code         AS "Term",
- --   b.tbraccd_amount       AS "Tuiton", 
- --    c.tbraccd_amount as "Lab",
- --   d.tbraccd_amount       AS "Tech Fee",
---    f.tbraccd_amount       AS "RegFee",
---    i.tbraccd_amount       AS "ActFee",
- --   k.tbraccd_amount       AS "Digital Mtls/Books",
+    b.tbraccd_amount       AS "Tuiton", 
+    b2.tbraccd_amount       AS "Tuiton2", 
+     c.tbraccd_amount as "Lab",
+  d.tbraccd_amount       AS "Tech Fee",
+    f.tbraccd_amount       AS "RegFee",
+    i.tbraccd_amount       AS "ActFee",
+    k.tbraccd_amount       AS "Digital Mtls/Books",
    
-  --  b.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount     AS "Total",
+  b.tbraccd_amount+b2.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount     AS "Total",
                                 
     LISTAGG(sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' || sc1.SCBCRSE_TITLE, ', ') WITHIN GROUP (ORDER BY sub.ssbsect_subj_code) OVER (PARTITION BY a.spriden_last_name,a.spriden_first_name)  AS "Course",
---    Null                        AS "Course 2",
---    Null                        AS "Course 3",
- --   Null                        AS "Course 4",
---    Null                        AS "Course 5",
- --   Null                        AS "Course 6",
- --   Null                        AS "Course 7",
      z.tbvconr_cont_id           AS "Vendor ID",
    a.spriden_first_name        AS "Vendor First Name",
    a.spriden_last_name         AS "Vendor Last Name",
@@ -36,7 +31,7 @@ FROM
                               AND a.spriden_change_ind IS NULL )
 
 
-/*
+
  -- ******************* TUTION DETAIL CODE ***********************************                         
     INNER JOIN tbvconr q ON ( q.tbvconr_stu_pidm = z.tbvconr_stu_pidm
                               AND q.tbvconr_term_code = z.tbvconr_term_code )
@@ -44,7 +39,16 @@ FROM
     INNER JOIN tbraccd b ON ( z.tbvconr_stu_pidm = b.tbraccd_pidm
                               AND q.tbvconr_crossref_detail_code = b.tbraccd_detail_code
                               AND q.tbvconr_term_code = b.tbraccd_term_code)
-                              AND b.tbraccd_detail_code IN ('TUIT','F1G1')
+                              AND b.tbraccd_detail_code IN ('TUIT')
+                              
+-- ******************* TUTION 2 DETAIL CODE ***********************************                         
+    INNER JOIN tbvconr q2 ON ( q2.tbvconr_stu_pidm = z.tbvconr_stu_pidm
+                              AND q2.tbvconr_term_code = z.tbvconr_term_code )
+
+    INNER JOIN tbraccd b2 ON ( z.tbvconr_stu_pidm = b2.tbraccd_pidm
+                              AND q2.tbvconr_crossref_detail_code = b2.tbraccd_detail_code
+                              AND q2.tbvconr_term_code = b2.tbraccd_term_code)
+                              AND b2.tbraccd_detail_code IN ('F1G1')
 
 -- ******************* LAB DETAIL CODE ***************************************
 
@@ -97,7 +101,7 @@ FROM
                              AND k.tbraccd_detail_code = 'MBFA' )
 
  -- ******************* COURSE 1 ***************************************   
-*/
+
     INNER JOIN sfrstca sf
              ON     a.spriden_pidm = sf.sfrstca_pidm
                 AND sf.sfrstca_term_code = z.tbvconr_term_code
@@ -145,5 +149,8 @@ FROM
                                     
 
 GROUP BY a.spriden_id, a.spriden_last_name, a.spriden_first_name, z.tbvconr_term_code, z.tbvconr_cont_name, z.tbvconr_cont_id, gor.goremal_email_address, 
-y.spraddr_street_line1, sub.ssbsect_subj_code, sub.ssbsect_crse_numb, sc1.SCBCRSE_TITLE 
-Order By a.spriden_last_name
+y.spraddr_street_line1, sub.ssbsect_subj_code, sub.ssbsect_crse_numb, sc1.SCBCRSE_TITLE, b.tbraccd_amount, c.tbraccd_amount, d.tbraccd_amount, c.tbraccd_detail_code, f.tbraccd_amount, b2.tbraccd_amount,
+i.tbraccd_amount,k.tbraccd_amount  
+Order By a.spriden_last_name;
+
+
