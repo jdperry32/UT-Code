@@ -13,7 +13,7 @@ SELECT DISTINCT
    
   --  b.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount     AS "Total",
                                 
-    LISTAGG(sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' || sc1.SCBCRSE_TITLE, ',') WITHIN GROUP (ORDER BY sub.ssbsect_subj_code) OVER (PARTITION BY a.spriden_last_name,a.spriden_first_name)  AS "Course",
+    LISTAGG(sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' || sc1.SCBCRSE_TITLE, ', ') WITHIN GROUP (ORDER BY sub.ssbsect_subj_code) OVER (PARTITION BY a.spriden_last_name,a.spriden_first_name)  AS "Course",
 --    Null                        AS "Course 2",
 --    Null                        AS "Course 3",
  --   Null                        AS "Course 4",
