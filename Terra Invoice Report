@@ -2,36 +2,32 @@ SELECT DISTINCT
     a.spriden_id                AS "Student ID",
     a.spriden_last_name         AS "Last Name",
     a.spriden_first_name        AS "First Name",
+
     z.tbvconr_term_code         AS "Term",
-    b.tbraccd_amount       AS "Tuiton",
-    CASE WHEN c.tbraccd_detail_code = 'FLE1' 
-         THEN c.tbraccd_amount 
-         ELSE NULL 
-         END as "Lab",
-    d.tbraccd_amount       AS "Tech Fee",
-    f.tbraccd_amount       AS "RegFee",
-    i.tbraccd_amount       AS "ActFee",
-    k.tbraccd_amount       AS "Digital Mtls/Books",
+ --   b.tbraccd_amount       AS "Tuiton", 
+ --    c.tbraccd_amount as "Lab",
+ --   d.tbraccd_amount       AS "Tech Fee",
+--    f.tbraccd_amount       AS "RegFee",
+--    i.tbraccd_amount       AS "ActFee",
+ --   k.tbraccd_amount       AS "Digital Mtls/Books",
    
-    b.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount                         
-                                AS "Total",
+  --  b.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount     AS "Total",
                                 
-    sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' ||  SCBCRSE_TITLE  AS "Course 1",
-    Null                        AS "Course 2",
-    Null                        AS "Course 3",
-    Null                        AS "Course 4",
-    Null                        AS "Course 5",
-    Null                        AS "Course 6",
-    Null                        AS "Course 7",
-    z.tbvconr_cont_id           AS "Vendor ID",
-    a.spriden_first_name        AS "Vendor First Name",
-    a.spriden_last_name         AS "Vendor Last Name",
-    gor.goremal_email_address   AS "Vendor Email",
-    Null                        AS "Vendor Email 2",
+    LISTAGG(sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' || sc1.SCBCRSE_TITLE, ',') WITHIN GROUP (ORDER BY sub.ssbsect_subj_code) OVER (PARTITION BY a.spriden_last_name,a.spriden_first_name)  AS "Course",
+--    Null                        AS "Course 2",
+--    Null                        AS "Course 3",
+ --   Null                        AS "Course 4",
+--    Null                        AS "Course 5",
+ --   Null                        AS "Course 6",
+ --   Null                        AS "Course 7",
+     z.tbvconr_cont_id           AS "Vendor ID",
+   a.spriden_first_name        AS "Vendor First Name",
+   a.spriden_last_name         AS "Vendor Last Name",
+   gor.goremal_email_address   AS "Vendor Email",
+   Null                        AS "Vendor Email 2",
     y.spraddr_street_line1    AS "Vendor Address",
 
     z.tbvconr_cont_name     AS "Vendor Name"
-    
 
 FROM
 
@@ -39,6 +35,8 @@ FROM
     INNER JOIN spriden a ON ( a.spriden_pidm = z.tbvconr_stu_pidm
                               AND a.spriden_change_ind IS NULL )
 
+
+/*
  -- ******************* TUTION DETAIL CODE ***********************************                         
     INNER JOIN tbvconr q ON ( q.tbvconr_stu_pidm = z.tbvconr_stu_pidm
                               AND q.tbvconr_term_code = z.tbvconr_term_code )
@@ -99,7 +97,7 @@ FROM
                              AND k.tbraccd_detail_code = 'MBFA' )
 
  -- ******************* COURSE 1 ***************************************   
-
+*/
     INNER JOIN sfrstca sf
              ON     a.spriden_pidm = sf.sfrstca_pidm
                 AND sf.sfrstca_term_code = z.tbvconr_term_code
@@ -143,6 +141,9 @@ FROM
                                               )
                                  FROM spraddr s
                                  WHERE s.spraddr_pidm = y.spraddr_pidm
-                                    AND  s.spraddr_seqno = y.spraddr_seqno
-)
+                                    AND  s.spraddr_seqno = y.spraddr_seqno)
+                                    
+
+GROUP BY a.spriden_id, a.spriden_last_name, a.spriden_first_name, z.tbvconr_term_code, z.tbvconr_cont_name, z.tbvconr_cont_id, gor.goremal_email_address, 
+y.spraddr_street_line1, sub.ssbsect_subj_code, sub.ssbsect_crse_numb, sc1.SCBCRSE_TITLE 
 Order By a.spriden_last_name
