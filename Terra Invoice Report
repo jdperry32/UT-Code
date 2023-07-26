@@ -15,7 +15,7 @@ SELECT DISTINCT
     i.tbraccd_amount       AS "ActFee",
     k.tbraccd_amount       AS "Digital Mtls/Books",
    
-  b.tbraccd_amount+b2.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount     AS "Total",
+ -- b.tbraccd_amount+b2.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount     AS "Total",
                                 
     LISTAGG(sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' || sc1.SCBCRSE_TITLE, ', ') WITHIN GROUP (ORDER BY sub.ssbsect_subj_code) OVER (PARTITION BY a.spriden_last_name,a.spriden_first_name)  AS "Course",
      z.tbvconr_cont_id           AS "Vendor ID",
@@ -161,28 +161,47 @@ Order By a.spriden_last_name
 
 --- Select From FEES With clause to elimnate dups for records with a lab fee
 SELECT DISTINCT
-    "Student ID",
-    "Last Name",
-    "First Name",
-    "Term",
-    "Tuiton",
-    "Tuiton2",
-    MAX("Lab") OVER (PARTITION BY "Student ID") AS "Lab",
-    "Tech Fee",
-    "RegFee",
-    "ActFee"
+    "Student ID"
+    ,"Last Name"
+    ,"First Name"
+    ,"Term"
+    ,"Tuiton"
+    ,"Tuiton2"
+    ,NVL(MAX("Lab") OVER (PARTITION BY "Student ID"),0) AS "Lab"
+    ,"Tech Fee"
+    ,"RegFee"
+    ,"ActFee"
+    ,"Digital Mtls/Books"
+    ,"Tuiton"+"Tuiton2"+"RegFee"+"ActFee"+"Tech Fee"+"Digital Mtls/Books"+NVL(MAX("Lab") OVER (PARTITION BY "Student ID"),0) AS "Total"
+    ,"Course"
+    ,"Vendor ID"
+    ,"Vendor First Name"
+    ,"Vendor Last Name"
+    ,"Vendor Email"
+    ,"Vendor Email 2"
+    ,"Vendor Address"
+    ,"Vendor Name"
 
 FROM FEES
 GROUP BY
- "Student ID",
-    "Last Name",
-    "First Name",
-    "Term",
-    "Tuiton",
-    "Tuiton2",
-    "Lab",
-    "Tech Fee",
-    "RegFee",
-    "ActFee"
+   "Student ID"
+    ,"Last Name"
+    ,"First Name"
+    ,"Term"
+    ,"Tuiton"
+    ,"Tuiton2"
+    ,"Lab"
+    ,"Tech Fee"
+    ,"RegFee"
+    ,"ActFee"
+    ,"Digital Mtls/Books"
+    ,"Course"
+    ,"Vendor ID"
+    ,"Vendor First Name"
+    ,"Vendor Last Name"
+    ,"Vendor Email"
+    ,"Vendor Email 2"
+    ,"Vendor Address"
+    ,"Vendor Name"
 
 ORDER BY "Last Name"
