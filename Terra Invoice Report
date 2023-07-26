@@ -1,12 +1,15 @@
+WITH FEES AS (
 SELECT DISTINCT
-    a.spriden_id                AS "Student ID",
-    a.spriden_last_name         AS "Last Name",
-    a.spriden_first_name        AS "First Name",
-
-    z.tbvconr_term_code         AS "Term",
-    b.tbraccd_amount       AS "Tuiton", 
-    b2.tbraccd_amount       AS "Tuiton2", 
-     c.tbraccd_amount as "Lab",
+    a.spriden_id AS "Student ID",
+    a.spriden_last_name AS "Last Name",
+    a.spriden_first_name AS "First Name",
+    z.tbvconr_term_code AS "Term",
+    b.tbraccd_amount  AS "Tuiton", 
+    b2.tbraccd_amount    AS "Tuiton2", 
+    CASE WHEN c.tbraccd_detail_code = 'FLE1'  
+    THEN c.tbraccd_amount 
+    ELSE NULL 
+    END AS "Lab",
   d.tbraccd_amount       AS "Tech Fee",
     f.tbraccd_amount       AS "RegFee",
     i.tbraccd_amount       AS "ActFee",
@@ -57,7 +60,7 @@ FROM
     INNER JOIN tbraccd c ON ( t.tbvconr_stu_pidm = c.tbraccd_pidm
                              AND t.tbvconr_crossref_detail_code = c.tbraccd_detail_code
                              AND t.tbvconr_term_code = c.tbraccd_term_code)
-                            AND c.tbraccd_detail_code IN ('FLE1')
+                            AND c.tbraccd_detail_code IN ('FLE1', 'TUIT')
                           
 
 -- ******************* TechFee DETAIL CODE ***************************************   
@@ -151,6 +154,35 @@ FROM
 GROUP BY a.spriden_id, a.spriden_last_name, a.spriden_first_name, z.tbvconr_term_code, z.tbvconr_cont_name, z.tbvconr_cont_id, gor.goremal_email_address, 
 y.spraddr_street_line1, sub.ssbsect_subj_code, sub.ssbsect_crse_numb, sc1.SCBCRSE_TITLE, b.tbraccd_amount, c.tbraccd_amount, d.tbraccd_amount, c.tbraccd_detail_code, f.tbraccd_amount, b2.tbraccd_amount,
 i.tbraccd_amount,k.tbraccd_amount  
-Order By a.spriden_last_name;
+Order By a.spriden_last_name
+
+)
 
 
+--- Select From FEES With clause to elimnate dups for records with a lab fee
+SELECT DISTINCT
+    "Student ID",
+    "Last Name",
+    "First Name",
+    "Term",
+    "Tuiton",
+    "Tuiton2",
+    MAX("Lab") OVER (PARTITION BY "Student ID") AS "Lab",
+    "Tech Fee",
+    "RegFee",
+    "ActFee"
+
+FROM FEES
+GROUP BY
+ "Student ID",
+    "Last Name",
+    "First Name",
+    "Term",
+    "Tuiton",
+    "Tuiton2",
+    "Lab",
+    "Tech Fee",
+    "RegFee",
+    "ActFee"
+
+ORDER BY "Last Name"
