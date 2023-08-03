@@ -19,11 +19,11 @@ SELECT DISTINCT
                                 
     LISTAGG(sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' || sc1.SCBCRSE_TITLE, ', ') WITHIN GROUP (ORDER BY sub.ssbsect_subj_code) OVER (PARTITION BY a.spriden_last_name,a.spriden_first_name)  AS "Course",
      z.tbvconr_cont_id           AS "Vendor ID",
-   a.spriden_first_name        AS "Vendor First Name",
-   a.spriden_last_name         AS "Vendor Last Name",
+   spi.spriden_first_name        AS "Vendor First Name",
+   spi.spriden_last_name         AS "Vendor Last Name",
    gor.goremal_email_address   AS "Vendor Email",
    Null                        AS "Vendor Email 2",
-    y.spraddr_street_line1    AS "Vendor Address",
+    y.spraddr_street_line1||' ' ||y.SPRADDR_STREET_LINE2||' '||y.SPRADDR_CITY||', '||y.SPRADDR_STAT_CODE||' '||y.SPRADDR_ZIP   AS "Vendor Address",
 
     z.tbvconr_cont_name     AS "Vendor Name"
 
@@ -31,6 +31,9 @@ FROM
 
     tbvconr z
     INNER JOIN spriden a ON ( a.spriden_pidm = z.tbvconr_stu_pidm
+                              AND a.spriden_change_ind IS NULL )
+                              
+    INNER JOIN spriden spi ON ( spi.SPRIDEN_ID = z.tbvconr_cont_id
                               AND a.spriden_change_ind IS NULL )
 
 
@@ -119,14 +122,14 @@ FROM
                 AND sc1.scbcrse_crse_numb = sub.SSBSECT_CRSE_NUMB
 
  -- ******************* VENDOR EMAIL ***************************************          
-    LEFT JOIN goremal gor ON (gor.goremal_pidm = a.spriden_pidm
+    LEFT JOIN goremal gor ON (gor.goremal_pidm = spi.spriden_pidm
                                 AND goremal_status_ind = 'A' 
-                                AND goremal_emal_code = 'UNIV'
+                               -- AND goremal_emal_code = 'UNIV'
                                 AND a.spriden_change_ind IS NULL )
 
  -- ******************* VENDOR ADDRESS ***************************************                                 
 
-    JOIN spraddr y ON (y.spraddr_pidm = a.spriden_pidm)
+    JOIN spraddr y ON (y.spraddr_pidm = spi.spriden_pidm)
 
 
     WHERE
@@ -153,7 +156,7 @@ FROM
 
 GROUP BY a.spriden_id, a.spriden_last_name, a.spriden_first_name, z.tbvconr_term_code, z.tbvconr_cont_name, z.tbvconr_cont_id, gor.goremal_email_address, 
 y.spraddr_street_line1, sub.ssbsect_subj_code, sub.ssbsect_crse_numb, sc1.SCBCRSE_TITLE, b.tbraccd_amount, c.tbraccd_amount, d.tbraccd_amount, c.tbraccd_detail_code, f.tbraccd_amount, b2.tbraccd_amount,
-i.tbraccd_amount,k.tbraccd_amount  
+i.tbraccd_amount,k.tbraccd_amount, spi.spriden_first_name,spi.spriden_last_name, y.SPRADDR_STREET_LINE2,y.SPRADDR_CITY, y.SPRADDR_STAT_CODE,y.SPRADDR_ZIP 
 Order By a.spriden_last_name
 
 )
