@@ -1,4 +1,57 @@
-WITH FEES AS (
+WITH 
+b AS (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code IN ('TUIT')
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+b2 AS (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code IN ('F1G1')
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+c AS    (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code IN ('FLE1', 'TUIT')
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+d AS   (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code = 'F1T1'
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+f AS (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code = 'F1R1'
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+i AS (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code = 'F1A1'
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+k AS (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code = 'MBFA'
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+j AS (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code = 'MBWN'    
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+o AS (SELECT tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code, SUM(tbraccd_amount) AS tbraccd_amount FROM tbraccd
+    WHERE tbraccd_detail_code = 'MBBN'    
+    GROUP BY  tbraccd_pidm, tbraccd_detail_code, tbraccd_term_code),
+    
+y AS (SELECT * FROM spraddr y WHERE y.spraddr_seqno = (SELECT NVL(MAX(r.spraddr_seqno),9)
+                             FROM spraddr r
+                             WHERE r.spraddr_pidm = y.spraddr_pidm
+                              AND r.spraddr_atyp_code = 'BI'
+                              AND r.spraddr_status_ind IS NULL)
+    AND y.spraddr_atyp_code = (
+                                  SELECT DECODE(
+                                               MIN(
+                                                   DECODE(
+                                                          s.spraddr_atyp_code,'PR','1','BI','2','OF','3','LO','4','5'
+                                                         )
+                                                  ),'1','PR','2','BI','3','OF','4','LO','5','XX'
+                                              )
+                                 FROM spraddr s
+                                 WHERE s.spraddr_pidm = y.spraddr_pidm
+                                    AND  s.spraddr_seqno = y.spraddr_seqno)),
+FEES AS (
 SELECT DISTINCT
     a.spriden_id AS "Student ID",
     a.spriden_last_name AS "Last Name",
@@ -14,8 +67,8 @@ SELECT DISTINCT
     f.tbraccd_amount       AS "RegFee",
     i.tbraccd_amount       AS "ActFee",
     k.tbraccd_amount       AS "Digital Mtls/Books",
-   
- -- b.tbraccd_amount+b2.tbraccd_amount+c.tbraccd_amount+d.tbraccd_amount+f.tbraccd_amount+i.tbraccd_amount+k.tbraccd_amount     AS "Total",
+    j.tbraccd_amount       AS "MBWN",
+    o.tbraccd_amount       AS "MBBN",
                                 
     LISTAGG(sub.ssbsect_subj_code || sub.ssbsect_crse_numb ||' ' || sc1.SCBCRSE_TITLE, ', ') WITHIN GROUP (ORDER BY sub.ssbsect_subj_code) OVER (PARTITION BY a.spriden_last_name,a.spriden_first_name,c.tbraccd_detail_code)  AS "Course",
      z.tbvconr_cont_id           AS "Vendor ID",
@@ -38,75 +91,84 @@ FROM
 
 
 
- -- ******************* TUTION DETAIL CODE ***********************************                         
-    INNER JOIN tbvconr q ON ( q.tbvconr_stu_pidm = z.tbvconr_stu_pidm
-                              AND q.tbvconr_term_code = z.tbvconr_term_code )
+-- ******************* TUTION DETAIL CODE ***********************************                         
+    --INNER JOIN tbvconr q ON ( q.tbvconr_stu_pidm = z.tbvconr_stu_pidm
+    --                          AND q.tbvconr_term_code = z.tbvconr_term_code)
 
-    INNER JOIN tbraccd b ON ( z.tbvconr_stu_pidm = b.tbraccd_pidm
-                              AND q.tbvconr_crossref_detail_code = b.tbraccd_detail_code
-                              AND q.tbvconr_term_code = b.tbraccd_term_code)
+   INNER JOIN b ON ( z.tbvconr_stu_pidm = b.tbraccd_pidm
+    --                          AND q.tbvconr_crossref_detail_code = b.tbraccd_detail_code
+                              AND z.tbvconr_term_code = b.tbraccd_term_code)
                               AND b.tbraccd_detail_code IN ('TUIT')
                               
 -- ******************* TUTION 2 DETAIL CODE ***********************************                         
-    INNER JOIN tbvconr q2 ON ( q2.tbvconr_stu_pidm = z.tbvconr_stu_pidm
-                              AND q2.tbvconr_term_code = z.tbvconr_term_code )
+    --INNER JOIN tbvconr q2 ON ( q2.tbvconr_stu_pidm = z.tbvconr_stu_pidm
+    --                          AND q2.tbvconr_term_code = z.tbvconr_term_code )
 
-    INNER JOIN tbraccd b2 ON ( z.tbvconr_stu_pidm = b2.tbraccd_pidm
-                              AND q2.tbvconr_crossref_detail_code = b2.tbraccd_detail_code
-                              AND q2.tbvconr_term_code = b2.tbraccd_term_code)
+    LEFT JOIN b2 ON ( z.tbvconr_stu_pidm = b2.tbraccd_pidm
+    --                        AND q2.tbvconr_crossref_detail_code = b2.tbraccd_detail_code
+                              AND z.tbvconr_term_code = b2.tbraccd_term_code)
                               AND b2.tbraccd_detail_code IN ('F1G1')
 
 -- ******************* LAB DETAIL CODE ***************************************
 
-   INNER JOIN tbvconr t ON ( t.tbvconr_stu_pidm = a.spriden_pidm
-                              AND t.tbvconr_term_code = z.tbvconr_term_code )
-    INNER JOIN tbraccd c ON ( t.tbvconr_stu_pidm = c.tbraccd_pidm
-                             AND t.tbvconr_crossref_detail_code = c.tbraccd_detail_code
-                             AND t.tbvconr_term_code = c.tbraccd_term_code)
+    --INNER JOIN tbvconr t ON ( t.tbvconr_stu_pidm = a.spriden_pidm
+    --                          AND t.tbvconr_term_code = z.tbvconr_term_code )
+    LEFT JOIN c ON ( z.tbvconr_stu_pidm = c.tbraccd_pidm
+    --                         AND t.tbvconr_crossref_detail_code = c.tbraccd_detail_code
+                             AND z.tbvconr_term_code = c.tbraccd_term_code)
                             AND c.tbraccd_detail_code IN ('FLE1', 'TUIT')
                           
 
 -- ******************* TechFee DETAIL CODE ***************************************   
 
-    INNER JOIN tbvconr h ON ( h.tbvconr_stu_pidm = z.tbvconr_stu_pidm
-                              AND h.tbvconr_term_code = z.tbvconr_term_code )
+    --INNER JOIN tbvconr h ON ( h.tbvconr_stu_pidm = z.tbvconr_stu_pidm
+    --                          AND h.tbvconr_term_code = z.tbvconr_term_code )
 
-    INNER JOIN tbraccd d ON ( h.tbvconr_stu_pidm = d.tbraccd_pidm
-                             AND h.tbvconr_crossref_detail_code = d.tbraccd_detail_code
-                             AND h.tbvconr_term_code = d.tbraccd_term_code
+    LEFT JOIN d ON ( z.tbvconr_stu_pidm = d.tbraccd_pidm
+     --                        AND h.tbvconr_crossref_detail_code = d.tbraccd_detail_code
+                             AND z.tbvconr_term_code = d.tbraccd_term_code
                              AND d.tbraccd_detail_code = 'F1T1' )
 
 -- ******************* RegFee DETAIL CODE ***************************************   
 
-    INNER JOIN tbvconr e ON ( e.tbvconr_stu_pidm = z.tbvconr_stu_pidm
-                              AND e.tbvconr_term_code = z.tbvconr_term_code )
+    --INNER JOIN tbvconr e ON ( e.tbvconr_stu_pidm = z.tbvconr_stu_pidm
+    --                          AND e.tbvconr_term_code = z.tbvconr_term_code )
 
-    INNER JOIN tbraccd f ON ( e.tbvconr_stu_pidm = f.tbraccd_pidm
-                             AND e.tbvconr_crossref_detail_code = f.tbraccd_detail_code
-                             AND e.tbvconr_term_code = f.tbraccd_term_code
+    LEFT JOIN f ON ( z.tbvconr_stu_pidm = f.tbraccd_pidm
+    --                         AND e.tbvconr_crossref_detail_code = f.tbraccd_detail_code
+                             AND z.tbvconr_term_code = f.tbraccd_term_code
                              AND f.tbraccd_detail_code = 'F1R1' )
 
 -- ******************* ActFee DETAIL CODE ***************************************   
 
-    LEFT JOIN tbvconr g ON ( g.tbvconr_stu_pidm = z.tbvconr_stu_pidm
-                              AND g.tbvconr_term_code = z.tbvconr_term_code )
+    --LEFT JOIN tbvconr g ON ( g.tbvconr_stu_pidm = z.tbvconr_stu_pidm
+    --                          AND g.tbvconr_term_code = z.tbvconr_term_code )
 
-    INNER JOIN tbraccd i ON ( g.tbvconr_stu_pidm = i.tbraccd_pidm
-                             AND g.tbvconr_crossref_detail_code = i.tbraccd_detail_code
-                             AND g.tbvconr_term_code = i.tbraccd_term_code
+    LEFT JOIN i ON ( z.tbvconr_stu_pidm = i.tbraccd_pidm
+                             --AND g.tbvconr_crossref_detail_code = i.tbraccd_detail_code
+                             AND z.tbvconr_term_code = i.tbraccd_term_code
                              AND i.tbraccd_detail_code = 'F1A1' )
 
 -- ******************* Didital Mtls / BOOKS DETAIL CODE ***************************************   
 
-    INNER JOIN tbvconr j ON ( j.tbvconr_stu_pidm = z.tbvconr_stu_pidm
-                              AND j.tbvconr_term_code = z.tbvconr_term_code )
+    --INNER JOIN tbvconr j ON ( j.tbvconr_stu_pidm = z.tbvconr_stu_pidm
+    --                          AND j.tbvconr_term_code = z.tbvconr_term_code )
 
-    INNER JOIN tbraccd k ON ( j.tbvconr_stu_pidm = k.tbraccd_pidm
-                             AND j.tbvconr_crossref_detail_code = k.tbraccd_detail_code
-                             AND j.tbvconr_term_code = k.tbraccd_term_code
+    LEFT JOIN k ON ( z.tbvconr_stu_pidm = k.tbraccd_pidm
+                            -- AND j.tbvconr_crossref_detail_code = k.tbraccd_detail_code
+                             AND z.tbvconr_term_code = k.tbraccd_term_code
                              AND k.tbraccd_detail_code = 'MBFA' )
 
- -- ******************* COURSE 1 ***************************************   
+  LEFT JOIN j ON ( z.tbvconr_stu_pidm = k.tbraccd_pidm
+                            -- AND j.tbvconr_crossref_detail_code = k.tbraccd_detail_code
+                             AND z.tbvconr_term_code = k.tbraccd_term_code
+                             AND k.tbraccd_detail_code = 'MBWN' )
+
+ LEFT JOIN o ON ( z.tbvconr_stu_pidm = k.tbraccd_pidm
+                            -- AND j.tbvconr_crossref_detail_code = k.tbraccd_detail_code
+                             AND z.tbvconr_term_code = k.tbraccd_term_code
+                             AND k.tbraccd_detail_code = 'MBBN' )
+-- ******************* COURSE 1 ***************************************   
 
     INNER JOIN sfrstca sf
              ON     a.spriden_pidm = sf.sfrstca_pidm
@@ -121,42 +183,48 @@ FROM
            ON     sc1.scbcrse_subj_code = sub.SSBSECT_SUBJ_CODE
                 AND sc1.scbcrse_crse_numb = sub.SSBSECT_CRSE_NUMB
 
- -- ******************* VENDOR EMAIL ***************************************          
+-- ******************* VENDOR EMAIL ***************************************          
     LEFT JOIN goremal gor ON (gor.goremal_pidm = spi.spriden_pidm
                                 AND goremal_status_ind = 'A' 
                                -- AND goremal_emal_code = 'UNIV'
                                 AND a.spriden_change_ind IS NULL )
 
- -- ******************* VENDOR ADDRESS ***************************************                                 
+-- ******************* VENDOR ADDRESS ***************************************                                 
 
-    JOIN spraddr y ON (y.spraddr_pidm = spi.spriden_pidm)
+    JOIN y ON (y.spraddr_pidm = spi.spriden_pidm)
 
 
     WHERE
         z.tbvconr_term_code = :term
-    AND z.tbvconr_cont_id = :id
+    AND z.tbvconr_cont_id = :id     
 
-    AND y.spraddr_seqno = (SELECT NVL(MAX(r.spraddr_seqno),9)
-                             FROM spraddr r
-                             WHERE r.spraddr_pidm = a.spriden_pidm
-                              AND r.spraddr_atyp_code = 'BI'
-                              AND r.spraddr_status_ind IS NULL)
-    AND y.spraddr_atyp_code = (
-                                  SELECT DECODE(
-                                               MIN(
-                                                   DECODE(
-                                                          s.spraddr_atyp_code,'PR','1','BI','2','OF','3','LO','4','5'
-                                                         )
-                                                  ),'1','PR','2','BI','3','OF','4','LO','5','XX'
-                                              )
-                                 FROM spraddr s
-                                 WHERE s.spraddr_pidm = y.spraddr_pidm
-                                    AND  s.spraddr_seqno = y.spraddr_seqno)
-                                    
-
-GROUP BY a.spriden_id, a.spriden_last_name, a.spriden_first_name, z.tbvconr_term_code, z.tbvconr_cont_name, z.tbvconr_cont_id, gor.goremal_email_address, 
-y.spraddr_street_line1, sub.ssbsect_subj_code, sub.ssbsect_crse_numb, sc1.SCBCRSE_TITLE, b.tbraccd_amount, c.tbraccd_amount, d.tbraccd_amount, c.tbraccd_detail_code, f.tbraccd_amount, b2.tbraccd_amount,
-i.tbraccd_amount,k.tbraccd_amount, spi.spriden_first_name,spi.spriden_last_name, y.SPRADDR_STREET_LINE2,y.SPRADDR_CITY, y.SPRADDR_STAT_CODE,y.SPRADDR_ZIP 
+GROUP BY a.spriden_id, 
+a.spriden_last_name, 
+a.spriden_first_name,
+z.tbvconr_term_code,
+z.tbvconr_cont_name,
+z.tbvconr_cont_id, 
+gor.goremal_email_address, 
+y.spraddr_street_line1, 
+sub.ssbsect_subj_code,
+sub.ssbsect_crse_numb, 
+sc1.SCBCRSE_TITLE, 
+b.tbraccd_amount, 
+c.tbraccd_amount, 
+d.tbraccd_amount,
+c.tbraccd_detail_code,
+f.tbraccd_amount, 
+b2.tbraccd_amount,
+i.tbraccd_amount,
+k.tbraccd_amount,
+j.tbraccd_amount,
+o.tbraccd_amount,
+spi.spriden_first_name,
+spi.spriden_last_name, 
+y.SPRADDR_STREET_LINE2,
+y.SPRADDR_CITY, 
+y.SPRADDR_STAT_CODE,
+y.SPRADDR_ZIP 
 Order By a.spriden_last_name
 
 )
@@ -173,9 +241,11 @@ SELECT DISTINCT
     ,NVL(MAX("Lab") OVER (PARTITION BY "Student ID"),0) AS "Lab"
     ,"Tech Fee"
     ,"RegFee"
-    ,"ActFee"
+    ,NVL(MAX("ActFee") OVER (PARTITION BY "Student ID"),0) AS "ActFee"
     ,"Digital Mtls/Books"
-    ,"Tuiton"+"Tuiton2"+"RegFee"+"ActFee"+"Tech Fee"+"Digital Mtls/Books"+NVL(MAX("Lab") OVER (PARTITION BY "Student ID"),0) AS "Total"
+    ,"MBWN"
+    ,"MBBN"
+    ,"Tuiton"+"Tuiton2"+"RegFee"+NVL(MAX("ActFee") OVER (PARTITION BY "Student ID"),0)+"Tech Fee"+"Digital Mtls/Books"+NVL(MAX("Lab") OVER (PARTITION BY "Student ID"),0) AS "Total"
     ,"Course"
     ,"Vendor ID"
     ,"Vendor First Name"
@@ -198,6 +268,8 @@ GROUP BY
     ,"RegFee"
     ,"ActFee"
     ,"Digital Mtls/Books"
+    ,"MBWN"
+    ,"MBBN"
     ,"Course"
     ,"Vendor ID"
     ,"Vendor First Name"
@@ -207,4 +279,4 @@ GROUP BY
     ,"Vendor Address"
     ,"Vendor Name"
 
-ORDER BY "Last Name"
+ORDER BY "Last Name";
